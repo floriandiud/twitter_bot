@@ -1,22 +1,22 @@
 ### Twitter_bot
 
-Si vous n'avez pas entendu parler de \#AmazonCart , c'est une fonctionnalité lancée par amazon permettant aux utilisateurs de Twitter d'ajouter un produit à leur panier amazon directement depuis le fil d'actualité, simplement en tweetant #AmazonCart en réponse à un tweet du compte officiel AmazonCart contenant un lien vers un produit amazon.
+Si vous n'avez pas entendu parler de \#AmazonCart, c'est une fonctionnalité lancée par amazon permettant aux utilisateurs de Twitter d'ajouter un produit à leur panier amazon directement depuis le fil d'actualité, simplement en tweetant #AmazonCart en réponse à un tweet du compte officiel AmazonCart contenant un lien vers un produit amazon.
 
-Le but de ce tutoriel sera de construire une application réalisant ces opérations en python, nous y ajouterons une fonctionnalité permettant aux utilisateurs de déterminer une taille avec le hashtag \#Taille_M par exemple. De plus, nous ne limiterons pas la fonctionnalité à un compte officiel, nous prendrons en compte tous les tweets contenant le hashtag en question. N'importe qui peut partager sur twitter un article et son url (url d'un site utilisant la technologie Iceberg), et les réponses à ce tweet seront prises en compte.
+Le but de ce tutoriel sera de construire une application réalisant ces opérations en Python, nous y ajouterons une fonctionnalité permettant aux utilisateurs de déterminer une taille avec le hashtag \#Taille_M par exemple. De plus, nous ne limiterons pas la fonctionnalité à un compte officiel, nous prendrons en compte tous les tweets contenant le hashtag en question. N'importe qui peut partager sur twitter un article et son url (url d'un site utilisant la technologie Iceberg), et les réponses à ce tweet seront prises en compte.
 
 Nous utiliserons pour cela la plateforme de développement et d'hébergement d'application Google App Engine qui nous simplifiera le travail, notamment pour la gestion de la base de donnée.
 
 
 * Le tutoriel se divisera en trois étapes
-    * L'ajout des utilisateurs à la base de donnée (appelée datastore), et l'enregistrement des informations dont nous auront besoin: mail, nom, prénom et pseudonyme twitter. Ces informations nous permettront, de faire le lien entre l'auteur du tweet trouvés et le compte utilisateur sur site notre utilisant la technologie Iceberg. Nous pourront ainsi intervenir sur son pannier via l'api Iceberg.
+    * L'ajout des utilisateurs à la base de donnée (appelée datastore), et l'enregistrement des informations dont nous auront besoin : email, nom, prénom et pseudonyme twitter. Ces informations nous permettront, de faire le lien entre l'auteur du tweet trouvé et le compte utilisateur sur le site notre utilisant la technologie Iceberg. Nous pourrons ainsi intervenir sur son pannier via l'api Iceberg.
     * Le scan périodique des tweets grâce à l'api twitter, l'identification de l'auteur et du compte Iceberg associé.
     * L'ajout de l'article au pannier de l'utilisateur via l'api Iceberg.
 
 #### Prérequis
 
-Connectez-vous sur le site appengine.google.com, et installez le logiciel googleappenginelauncher sur votre ordinateur, créez une nouvelle application, elle contient par défaut 4 fichiers. Nous n'expliquerons pas comment créer l'application de A à Z, le projet est récupérable à cette [adresse](https://github.com/Rafkraft/twitter_bot/tree/masterv2).
+Connectez-vous sur le site [adresse](https://appengine.google.com), et installez le logiciel googleappenginelauncher sur votre ordinateur, créez une nouvelle application, elle contient par défaut 4 fichiers. Nous n'expliquerons pas comment créer l'application de A à Z, le projet est récupérable à cette [adresse](https://github.com/Rafkraft/twitter_bot/tree/masterv2).
 
-#### Configuration initiale:
+#### Configuration initiale :
 
 Il est tout d'abord nécessaire de configurer votre fichier app.yaml, définissez les trois variables admin_mail, hashtag et website_name, ainsi que les clés de l'api twitter et la variable PRIVATE_CRYPTO_KEY qui sera utilisée pour vérifier les requêtes POST reçues.
 
@@ -75,13 +75,12 @@ Les variables sont récupérées, rien d'incroyable jusque là
 
 #### \#Hash data using the secret_key defined in app.yaml
 
-Le hashing est réalisé à nouveau avec les variables récupérées, on fait appel à la variable d'environnement PRIVATE_CRYPTO_KEY, bien gardée dans le fichier app. 
-yaml. La même opération a été réalisée à l'émission. On compare ensuite la variable obtenue (message_auth) et la variable issue du hashing à l'emission (recieved_crypto), si elles diffèrent, un message d'erreur est envoyé et l'éxecution s'arrête.
+Le hashing est réalisé à nouveau avec les variables récupérées, on fait appel à la variable d'environnement PRIVATE_CRYPTO_KEY, bien gardée dans le fichier app.yaml . La même opération a été réalisée à l'émission. On compare ensuite la variable obtenue (message_auth) et la variable issue du hashing à l'emission (recieved_crypto), si elles diffèrent, un message d'erreur est envoyé et l'éxecution s'arrête.
 
 
 #### \#Verify twitter mail is not taken
 
-On vérifie que l'adresse mail reçue n'est pas déjà associée à un compte dans le datastore:
+On vérifie que l'adresse mail reçue n'est pas déjà associée à un compte dans le datastore :
     *Si c'est le cas, les données sont mises à jour et aucun nouveau compte n'est créé.
     *Si l'adresse mail n'est pas utilisée, un nouveau compte est créé.
 
